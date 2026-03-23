@@ -1,6 +1,6 @@
 {
   "final_error_norm": 1.525197340009306e-07,
-  "rms_error_norm": 5.993255954712382e-05,
+  "rms_error_norm": 5.993255954713055e-05,
   "trajectory_force_feasible": true,
   "trajectory_max_residual_norm": 2.283950806258872e-12
 }
