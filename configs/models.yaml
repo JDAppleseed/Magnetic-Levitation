@@ -1,0 +1,60 @@
+cube:
+  side_length: 1.0
+  gravity: 9.81
+ball:
+  radius: 0.05
+  mass: 0.25
+  inertia: 0.00025
+backend:
+  name: rk4
+  dt: 0.005
+  dt_by_mode:
+    free: 0.005
+    affine: 0.005
+    fixed_dipole: 0.005
+    induced_dipole: 0.001
+  damping: 0.0
+  contact_mode: hard_wall
+  restitution: 0.0
+actuators:
+  order: [x-, x+, y-, y+, z-, z+]
+  u_min: 0.0
+  u_max: 12.0
+  affine_gain: 0.55
+  decay_power: 1.5
+  decay_offset: 0.05
+  dipole_strength: 300000.0
+physical_presets:
+  default: demo_calibrated_physical
+  conservative_physical:
+    dipole_strength: 10000.0
+    fixed_dipole_moment: [0.0, 0.0, 0.03]
+    induced_alpha: 0.5
+  demo_calibrated_physical:
+    dipole_strength: 300000.0
+    fixed_dipole_moment: [0.0, 0.0, 0.08]
+    induced_alpha: 12.0
+robot_coupling:
+  fixed_dipole_moment: [0.0, 0.0, 0.08]
+  induced_alpha: 12.0
+  physical_preset: demo_calibrated_physical
+induced_mode:
+  finite_difference_eps: 1.0e-5
+  max_force_norm: 7.5
+  max_gradient_norm: 1.0e2
+  actuator_slew_rate_limit: 24.0
+  min_boundary_margin: 0.005
+  max_velocity_norm: 2.0
+  allow_exploratory_default: false
+physical_status:
+  exact_residual_norm: 1.0e-6
+  marginal_residual_norm: 1.0e-3
+  exact_margin: 0.05
+  marginal_margin: -0.05
+  exact_saturation_margin: 0.10
+  marginal_saturation_margin: 0.01
+  exact_force_to_weight_ratio: 1.05
+  marginal_force_to_weight_ratio: 0.95
+  exact_condition_number: 1.0e3
+  marginal_condition_number: 1.0e5
+  path_sample_count: 101

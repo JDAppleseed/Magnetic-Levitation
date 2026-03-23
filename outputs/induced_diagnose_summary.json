@@ -1,0 +1,98 @@
+{
+  "alpha_force_to_weight_ratios": [
+    42.42576126197586,
+    84.85152252395172,
+    169.70304504790343,
+    339.40609009580686,
+    678.8121801916137,
+    1357.6243603832274,
+    2036.4365405748413,
+    2715.248720766455
+  ],
+  "alpha_hover_feasible": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "alpha_values": [
+    0.25,
+    0.5,
+    1.0,
+    2.0,
+    4.0,
+    8.0,
+    12.0,
+    16.0
+  ],
+  "boundary_field_norm": 702.9155962189959,
+  "boundary_grad_norm_sq_norm": 37298354.72371986,
+  "conservative_force_to_weight_ratio": 0.09427946947105745,
+  "conservative_hover_feasible": false,
+  "conservative_hover_residual_norm": 2.2212796011693112,
+  "demo_force_to_weight_ratio": 2036.4365405748413,
+  "demo_hover_feasible": true,
+  "demo_hover_residual_norm": 4.0856266597173965e-14,
+  "dt_final_errors": [
+    0.0018862229498652812,
+    0.0019460358485709278,
+    0.0019884926757525573,
+    0.002003784415508645
+  ],
+  "dt_inside_flags": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "dt_max_forces": [
+    2.451951727656321,
+    2.45374822488889,
+    2.4604533541864306,
+    2.462909809888427
+  ],
+  "dt_rms_errors": [
+    0.01053441534725408,
+    0.010621572098069645,
+    0.010676533278914819,
+    0.01069526135953725
+  ],
+  "dt_stage_projection_counts": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "dt_values": [
+    0.005,
+    0.0025,
+    0.001,
+    0.0005
+  ],
+  "fd_h_values": [
+    1e-06,
+    2e-06,
+    5e-06,
+    1e-05,
+    2e-05,
+    5e-05,
+    0.0001
+  ],
+  "fd_relative_errors": [
+    3.4797967195046985e-09,
+    1.4308873035358314e-08,
+    8.94104638864917e-08,
+    3.5773370628887806e-07,
+    1.4309957770106821e-06,
+    8.943816147400858e-06,
+    3.577527738118344e-05
+  ],
+  "first_alpha_with_hover_feasibility": 0.25,
+  "first_alpha_with_weight_support": 0.25,
+  "hover_field_norm": 0.03537796947438958,
+  "hover_grad_norm_sq_norm": 0.40875000000000683
+}

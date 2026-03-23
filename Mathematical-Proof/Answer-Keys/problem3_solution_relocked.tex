@@ -1,0 +1,415 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{Problem 3 Solution: Controller Design}}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+
+\maketitle
+
+\section{Setup}
+
+We retain the translation-only model on the admissible center-of-mass region
+\[
+\Omega_r = [r,L-r]^3 \subset \mathbb{R}^3.
+\]
+Gravity acts as $-mg e_z$, where $e_z = (0,0,1)^\top$ points upward. The dynamics are
+\begin{equation}
+ m\ddot x = F_{\mathrm{mag}}(x,u) - mg e_z + d(t),
+ \label{eq:dynamics}
+\end{equation}
+where:
+\begin{itemize}[leftmargin=1.5em]
+    \item $x \in \Omega_r$ is the position,
+    \item $u \in U \subset \mathbb{R}^6$ is the actuator input,
+    \item $d(t) \in \mathbb{R}^3$ is a disturbance,
+    \item $F_{\mathrm{mag}} : \Omega_r \times U \to \mathbb{R}^3$ is $C^1$.
+\end{itemize}
+
+Let $x^\star \in \Omega_{\mathrm{eq}}$ be a target equilibrium point, so there exists $u^\star \in U$ such that
+\begin{equation}
+F_{\mathrm{mag}}(x^\star,u^\star) = mg e_z.
+\label{eq:eqcond}
+\end{equation}
+
+Define the tracking error
+\[
+e := x - x^\star,
+\qquad
+\dot e = \dot x.
+\]
+Using \eqref{eq:eqcond}, \eqref{eq:dynamics} becomes
+\begin{equation}
+ m\ddot e = F_{\mathrm{mag}}(x,u) - F_{\mathrm{mag}}(x^\star,u^\star) + d(t).
+ \label{eq:errordyn}
+\end{equation}
+
+Problem 3 asks for a feedback law $u = \pi(x,\dot x,x^\star)$ that:
+\begin{enumerate}[label=\textbf{(\arabic*)}, leftmargin=1.5em]
+    \item drives $x(t)$ to $x^\star$,
+    \item respects actuator bounds,
+    \item remains locally valid near the equilibrium,
+    \item and handles small disturbances in a mathematically explicit way.
+\end{enumerate}
+
+\section{Two-layer controller architecture}
+
+The correct controller architecture is two-layered.
+
+\subsection*{Outer loop: desired force}
+We define a commanded net magnetic force
+\begin{equation}
+ f_{\mathrm{cmd}}(e,\dot e,\eta)
+ := mg e_z - K_p e - K_d \dot e - K_i \eta,
+ \label{eq:fcmd}
+\end{equation}
+where $K_p, K_d \in \mathbb{R}^{3\times 3}$ are gain matrices, $K_i \in \mathbb{R}^{3\times 3}$ is an integral gain, and the integral state satisfies
+\begin{equation}
+ \dot \eta = e.
+ \label{eq:eta}
+\end{equation}
+
+The gravity term in \eqref{eq:fcmd} is included deliberately: the allocator is asked to realize the \emph{full} magnetic force required for hover and regulation, not merely the perturbation away from equilibrium.
+
+\subsection*{Inner loop: actuator allocation}
+Given $f_{\mathrm{cmd}}$, choose $u \in U$ so that
+\begin{equation}
+ F_{\mathrm{mag}}(x,u) = f_{\mathrm{cmd}}.
+ \label{eq:alloc_exact}
+\end{equation}
+When exact realization is impossible, choose $u$ to minimize the allocation error
+\begin{equation}
+ \Delta_f(x,e,\dot e,\eta)
+ := F_{\mathrm{mag}}(x,u) - f_{\mathrm{cmd}}.
+ \label{eq:def_deltaf}
+\end{equation}
+
+\begin{remark}[Why this architecture is necessary]
+A direct ``PID on six actuator channels'' is not the right mathematical controller for this problem. The plant output is a three-dimensional force, while the actuation lives in a six-dimensional input space. The correct design is:
+\[
+(e,\dot e,\eta) \mapsto f_{\mathrm{cmd}} \mapsto u.
+\]
+The outer loop regulates motion in physical force space; the inner loop allocates actuator commands.
+\end{remark}
+
+\section{Ideal PD stabilization}
+
+We first treat the ideal case with no integral action and exact force realization.
+
+\begin{theorem}[Ideal PD stabilization]
+Suppose there exists a neighborhood $\mathcal N$ of $(x^\star,0)$ and a feedback allocator $\alpha$ such that for every $(x,\dot e) \in \mathcal N$,
+\begin{equation}
+F_{\mathrm{mag}}\bigl(x,\alpha(x,e,\dot e)\bigr) = mg e_z - K_p e - K_d \dot e,
+\label{eq:idealpdalloc}
+\end{equation}
+where $K_p \succ 0$ and $K_d \succ 0$. Then the equilibrium $(e,\dot e) = (0,0)$ of the closed-loop system is locally asymptotically stable.
+\end{theorem}
+
+\begin{proof}
+Under \eqref{eq:idealpdalloc}, equation \eqref{eq:errordyn} with $d \equiv 0$ becomes
+\[
+ m\ddot e = -K_p e - K_d \dot e.
+\]
+Consider the Lyapunov function
+\[
+V(e,\dot e) = \frac12 m\dot e^\top \dot e + \frac12 e^\top K_p e.
+\]
+Because $K_p \succ 0$, the function $V$ is positive definite and radially unbounded in $(e,\dot e)$. Differentiating along trajectories gives
+\[
+\dot V = m\dot e^\top \ddot e + e^\top K_p \dot e.
+\]
+Substituting the closed-loop dynamics,
+\[
+ m\ddot e = -K_p e - K_d \dot e,
+\]
+we obtain
+\[
+\dot V = \dot e^\top(-K_p e - K_d\dot e) + e^\top K_p \dot e = -\dot e^\top K_d \dot e \le 0.
+\]
+Thus $\dot V$ is negative semidefinite. The set where $\dot V = 0$ is
+\[
+\mathcal S = \{(e,\dot e): \dot e = 0\}.
+\]
+To identify the largest invariant subset of $\mathcal S$, suppose a trajectory remains in $\mathcal S$. Then $\dot e = 0$ for all time, hence $\ddot e = 0$ for all time as well. The closed-loop dynamics then give
+\[
+0 = -K_p e,
+\]
+so $e=0$ because $K_p \succ 0$. Therefore the largest invariant set contained in $\mathcal S$ is the singleton $\{(0,0)\}$. By LaSalle's invariance principle,
+\[
+(e(t),\dot e(t)) \to (0,0).
+\]
+Hence the equilibrium is locally asymptotically stable.
+\end{proof}
+
+\begin{remark}[Nonlinear conclusion]
+By Lyapunov's indirect method, if the linearized closed-loop system is asymptotically stable, then the corresponding equilibrium of the full nonlinear system is locally asymptotically stable. In the theorem above, the exact realized closed-loop dynamics are already nonlinear only through the allocator, and the resulting force law exactly matches the stable PD target in a neighborhood. Hence the nonlinear equilibrium inherits local asymptotic stability.
+\end{remark}
+
+\section{Local bounded-input stabilization}
+
+The central result of Problem 3 is that bounded-input local stabilization follows from local force realizability.
+
+\begin{definition}[Input Jacobian at equilibrium]
+Let
+\begin{equation}
+B_x := \frac{\partial F_{\mathrm{mag}}}{\partial u}(x^\star,u^\star) \in \mathbb{R}^{3\times 6}.
+\label{eq:Bx}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Necessary control authority condition]
+If $\operatorname{rank} B_x < 3$, then there exists a nonzero vector $n \in \mathbb{R}^3$ such that
+\[
+n^\top B_x = 0.
+\]
+Consequently, perturbation forces in the $n$-direction receive no first-order control input. If the linearized drift matrix has an unstable mode in that direction, then the pair $(A,B)$ fails the Popov-Belevitch-Hautus stabilizability test and the equilibrium is not locally stabilizable.
+\end{proposition}
+
+\begin{proof}
+If $\operatorname{rank}B_x < 3$, then the left nullspace of $B_x$ is nontrivial, so there exists $n \ne 0$ with $n^\top B_x = 0$. Thus the first-order control channel cannot directly affect perturbation accelerations projected onto $n$. If the linearized drift has an unstable eigenmode in an uncontrollable direction, the PBH test fails, so the pair is not stabilizable.
+\end{proof}
+
+\begin{theorem}[Local bounded-input PD stabilizability]
+Assume:
+\begin{enumerate}[label=\textbf{(A\arabic*)}, leftmargin=1.8em]
+    \item $F_{\mathrm{mag}}$ is $C^1$ in a neighborhood of $(x^\star,u^\star)$,
+    \item $\operatorname{rank} B_x = 3$,
+    \item $u^\star \in \operatorname{int}(U)$,
+    \item $K_p \succ 0$ and $K_d \succ 0$.
+\end{enumerate}
+Then there exist neighborhoods $\mathcal N_x$ of $x^\star$, $\mathcal N_f$ of $mg e_z$, and a $C^1$ local allocator
+\[
+\alpha : \mathcal N_x \times \mathcal N_f \to U
+\]
+such that
+\begin{equation}
+F_{\mathrm{mag}}\bigl(x,\alpha(x,f)\bigr) = f
+\qquad \text{for all } (x,f) \in \mathcal N_x \times \mathcal N_f.
+\label{eq:localalloc}
+\end{equation}
+Consequently, if the PD commanded force
+\[
+f_{\mathrm{cmd}} = mg e_z - K_p e - K_d \dot e
+\]
+remains in $\mathcal N_f$, then the resulting bounded-input closed loop is locally asymptotically stable.
+\end{theorem}
+
+\begin{proof}
+Consider the map
+\[
+\Phi(x,u) := F_{\mathrm{mag}}(x,u).
+\]
+By assumption, $\Phi$ is $C^1$, and
+\[
+\Phi(x^\star,u^\star)=mg e_z.
+\]
+The partial derivative with respect to $u$ at $(x^\star,u^\star)$ is $B_x$, which has full row rank $3$ by assumption. Therefore $\Phi$ is locally surjective in the input variable at the equilibrium.
+
+Since $u^\star \in \operatorname{int}(U)$, there is room to vary the actuator input while remaining inside $U$. By the surjective implicit function theorem (equivalently, the constant-rank theorem) applied to the equation
+\[
+\Phi(x,u)=f,
+\]
+there exist neighborhoods $\mathcal N_x$ of $x^\star$, $\mathcal N_f$ of $mg e_z$, and a $C^1$ local selection $\alpha(x,f) \in U$ satisfying \eqref{eq:localalloc}.
+
+Now choose the outer-loop PD force command
+\[
+f_{\mathrm{cmd}} = mg e_z - K_p e - K_d \dot e.
+\]
+For sufficiently small $(e,\dot e)$, the continuity of $f_{\mathrm{cmd}}$ implies $f_{\mathrm{cmd}} \in \mathcal N_f$, so the allocator is well defined and exact:
+\[
+F_{\mathrm{mag}}(x,u)=f_{\mathrm{cmd}}.
+\]
+The closed-loop dynamics reduce to
+\[
+ m\ddot e = -K_p e - K_d \dot e.
+\]
+By the previous theorem, the origin is locally asymptotically stable.
+\end{proof}
+
+\begin{remark}[Why this theorem is central]
+This theorem is the main bridge between abstract control and physical actuation. Rank-$3$ input authority at the equilibrium, together with interior actuator margin, implies that desired corrective forces can be realized locally by bounded actuator inputs. Once this local realizability is established, the control problem reduces to a standard stable PD law in force space.
+\end{remark}
+
+\section{Practical allocation rules}
+
+The local allocator from the theorem is existential. In computation, one typically uses either a pseudoinverse or a constrained least-squares solve.
+
+\begin{proposition}[Linearized minimum-norm allocator]
+In the linearized model near $(x^\star,u^\star)$,
+\[
+F_{\mathrm{mag}}(x,u) \approx mg e_z + A_x e + B_x \delta u,
+\qquad
+\delta u := u-u^\star,
+\]
+a formal minimum-norm input update is
+\begin{equation}
+\delta u = B_x^\dagger\bigl(f_{\mathrm{cmd}} - mg e_z - A_x e\bigr).
+\label{eq:pseudoinverse}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The linearized allocation equation is
+\[
+A_x e + B_x \delta u = f_{\mathrm{cmd}} - mg e_z.
+\]
+When $B_x$ has full row rank, the minimum-norm least-squares solution is given by the Moore-Penrose pseudoinverse, yielding \eqref{eq:pseudoinverse}.
+\end{proof}
+
+\begin{remark}[Saturation caveat]
+The pseudoinverse solution is the minimum-norm linearized solution, but it need not satisfy the actuator bounds. Even when the commanded force is feasible, the minimum-norm solution may lie outside $U$. In bounded implementations, one should instead use a constrained least-squares or quadratic-program allocation.
+\end{remark}
+
+\section{PID control and constant-disturbance rejection}
+
+We now include integral action.
+
+Define the augmented state
+\[
+z := \begin{bmatrix} e \\ \dot e \\ \eta \end{bmatrix} \in \mathbb{R}^9,
+\qquad
+\dot \eta = e.
+\]
+Suppose the commanded force is
+\[
+f_{\mathrm{cmd}} = mg e_z - K_p e - K_d \dot e - K_i \eta.
+\]
+If the allocator realizes this force exactly, then with a constant disturbance $d(t) \equiv d_0$, the error dynamics are
+\begin{equation}
+ m\ddot e = -K_p e - K_d \dot e - K_i \eta + d_0.
+ \label{eq:piddyn}
+\end{equation}
+
+\begin{theorem}[PID regulation and disturbance handling]
+Assume exact local allocation of the commanded force and let $d(t) \equiv d_0$ be constant.
+
+\begin{enumerate}[label=\textbf{(\alph*)}, leftmargin=1.5em]
+    \item The augmented closed-loop dynamics for $z = [e^\top\; \dot e^\top\; \eta^\top]^\top$ are linear and have state matrix
+    \begin{equation}
+    A_{\mathrm{PID}} =
+    \begin{bmatrix}
+    0 & I & 0 \\
+    -m^{-1}K_p & -m^{-1}K_d & -m^{-1}K_i \\
+    I & 0 & 0
+    \end{bmatrix}.
+    \label{eq:Apid}
+    \end{equation}
+
+    \item If $A_{\mathrm{PID}}$ is Hurwitz, then the equilibrium of the constant-disturbance-augmented system is locally asymptotically stable, and the position error satisfies
+    \[
+    e(t) \to 0.
+    \]
+    Thus constant disturbances are rejected.
+
+    \item If $d(t)$ is time-varying but bounded, then the closed-loop system is locally input-to-state stable with respect to $d(t)$ and any allocation error $\Delta_f$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Under exact force realization, the dynamics are \eqref{eq:piddyn} together with $\dot \eta = e$. Writing $z = [e^\top\; \dot e^\top\; \eta^\top]^\top$ yields the linear system
+\[
+\dot z = A_{\mathrm{PID}} z + \begin{bmatrix} 0 \\ m^{-1}d_0 \\ 0 \end{bmatrix},
+\]
+with $A_{\mathrm{PID}}$ as in \eqref{eq:Apid}. This proves part (a).
+
+For part (b), if $A_{\mathrm{PID}}$ is Hurwitz, then the linear system has a unique exponentially stable equilibrium under constant forcing. At equilibrium we must have $\dot e = 0$ and $\dot \eta = e = 0$, so the steady-state position error is zero. Therefore $e(t) \to 0$, which is exactly constant-disturbance rejection.
+
+For part (c), with allocation error $\Delta_f$ and bounded time-varying disturbance $d(t)$, the true dynamics become
+\[
+ m\ddot e = -K_p e - K_d \dot e - K_i \eta + d(t) + \Delta_f.
+\]
+In augmented form,
+\[
+\dot z = A_{\mathrm{PID}} z + B_d\bigl(d(t)+\Delta_f\bigr)
+\]
+for a suitable constant input matrix $B_d$. Since $A_{\mathrm{PID}}$ is Hurwitz, for any symmetric positive definite matrix $Q$ there exists a unique symmetric positive definite matrix $P$ solving the Lyapunov equation $A_{\mathrm{PID}}^	op P + P A_{\mathrm{PID}} = -Q$. With the quadratic Lyapunov function $V(z)=z^	op P z$, one obtains $\dot V \le -\lambda_{\min}(Q)\|z\|^2 + 2\|P B_d\|\,\|z\|\,\|d+\Delta_f\|$, which yields the standard local input-to-state stability estimate with respect to the bounded exogenous input $d+\Delta_f$.
+\end{proof}
+
+\begin{remark}[Choosing PID gains]
+A sufficient practical design condition is to choose $K_p \succ 0$ and $K_d \succ 0$ first so that the PD part is strongly damped, then choose $K_i \succeq 0$ sufficiently small so that the augmented matrix $A_{\mathrm{PID}}$ remains Hurwitz. This is the standard small-integral-action design rule.
+\end{remark}
+
+\section{Physical magnetic models}
+
+The controller design above is formulated for a general $C^1$ force law $F_{\mathrm{mag}}(x,u)$. This is important because the physical magnetic models need not be globally control-affine in $u$.
+
+\subsection*{Permanent or controlled dipole model}
+If
+\[
+F_{\mathrm{mag}}(x,u) = \nabla\bigl(\mu \cdot B(x,u)\bigr),
+\qquad
+B(x,u)=\sum_{i=1}^6 u_i B_i(x),
+\]
+then for fixed $\mu$ the force law is affine in $u$, and the previous local rank and allocation conditions apply directly.
+
+\subsection*{Induced-dipole model}
+If
+\[
+F_{\mathrm{mag}}(x,u) = \frac{\alpha}{2}\nabla \|B(x,u)\|^2,
+\qquad
+B(x,u)=\sum_{i=1}^6 u_i B_i(x),
+\]
+then the force law is quadratic in $u$. In this case the local controller theory still applies, but the relevant linearized input matrix is
+\[
+B_x = \frac{\partial F_{\mathrm{mag}}}{\partial u}(x^\star,u^\star),
+\]
+computed directly at the equilibrium. Thus the abstract theorems remain valid as local nonlinear-control statements even when the global force law is not control-affine.
+
+\section{Final answer to Problem 3}
+
+The formal solution to Problem 3 is:
+\begin{enumerate}[label=\textbf{(\arabic*)}, leftmargin=1.5em]
+    \item The correct controller is a \emph{two-layer feedback law}:
+    \[
+    (e,\dot e,\eta) \mapsto f_{\mathrm{cmd}} \mapsto u.
+    \]
+
+    \item For PD regulation, choose
+    \[
+    f_{\mathrm{cmd}} = mg e_z - K_p e - K_d \dot e.
+    \]
+    If this commanded force is locally realizable, then the closed-loop dynamics are
+    \[
+    m\ddot e = -K_p e - K_d \dot e,
+    \]
+    and the equilibrium is locally asymptotically stable.
+
+    \item A sufficient condition for local bounded-input realizability is:
+    \[
+    \operatorname{rank} B_x = 3
+    \quad \text{and} \quad
+    u^\star \in \operatorname{int}(U).
+    \]
+    Under these conditions, the implicit-function theorem yields a local exact allocator.
+
+    \item Pseudoinverse allocation is a valid local linearized formula, but it may violate actuator bounds; constrained allocation is therefore the physically correct implementation.
+
+    \item For PID regulation, choose
+    \[
+    f_{\mathrm{cmd}} = mg e_z - K_p e - K_d \dot e - K_i \eta,
+    \qquad
+    \dot \eta = e.
+    \]
+    If the augmented closed-loop matrix is Hurwitz, then constant disturbances are rejected and $e(t) \to 0$.
+
+    \item With bounded time-varying disturbance and allocation error, the closed-loop system is locally input-to-state stable.
+
+    \item The same theory applies locally to the physically grounded magnetic models after linearizing the true force law and computing the input Jacobian $B_x$ at the equilibrium.
+\end{enumerate}
+
+\end{document}

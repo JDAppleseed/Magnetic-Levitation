@@ -1,0 +1,10 @@
+gains:
+  kp: [18.0, 18.0, 26.0]
+  kd: [8.0, 8.0, 10.0]
+  ki: [0.0, 0.0, 0.0]
+integral_limit: 0.2
+allocator:
+  mode: bounded_ls
+  regularization: 1.0e-9
+  saturate_warning_fraction: 0.95
+

@@ -1,0 +1,398 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{bm}
+
+\title{\textbf{Problem 1 Solution: Equilibrium Existence}}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+
+\maketitle
+
+\section{Setup}
+
+We work under the translation-only model on the admissible center-of-mass region
+\[
+\Omega_r = [r,L-r]^3 \subset \mathbb{R}^3.
+\]
+Gravity acts as \(-mg\,e_z\), where \(e_z = (0,0,1)^\top\) points upward.
+
+The translational dynamics are
+\[
+m\ddot{x} = F_{\mathrm{mag}}(x,u) - mg\,e_z,
+\qquad x \in \Omega_r,\quad u \in U,
+\]
+where \(U \subset \mathbb{R}^6\) is the actuator constraint set.
+
+For the main part of Problem 1, we use the abstract control-affine surrogate
+\[
+F_{\mathrm{mag}}(x,u) = \sum_{i=1}^6 u_i g_i(x),
+\]
+where each
+\[
+g_i : \Omega_r \to \mathbb{R}^3
+\]
+is assumed to be \(C^1\).
+
+\begin{assumption}[Actuator set]
+Unless otherwise stated, the admissible actuator set is the box
+\[
+U = [u_{\min},u_{\max}]^6.
+\]
+No symmetry of the bounds is assumed unless explicitly stated.
+\end{assumption}
+
+\begin{definition}[Force matrix]
+Define
+\[
+G(x)
+=
+\begin{bmatrix}
+| & | & & |\\
+g_1(x) & g_2(x) & \cdots & g_6(x)\\
+| & | & & |
+\end{bmatrix}
+\in \mathbb{R}^{3\times 6}.
+\]
+Then
+\[
+F_{\mathrm{mag}}(x,u)=G(x)u.
+\]
+\end{definition}
+
+\begin{definition}[Reachable force set]
+For each \(x \in \Omega_r\), define
+\[
+\mathcal{F}(x)
+:=
+\{G(x)u : u \in U\}
+\subset \mathbb{R}^3.
+\]
+Under box constraints, \(\mathcal{F}(x)\) is the image of a box under a linear map, hence a compact convex polytope; if the bounds are symmetric about zero, it is a zonotope.
+\end{definition}
+
+\section{Equilibrium Existence}
+
+\begin{definition}[Equilibrium point]
+A point \(x^\star \in \operatorname{int}(\Omega_r)\) is an equilibrium point if there exists \(u^\star \in U\) such that
+\[
+F_{\mathrm{mag}}(x^\star,u^\star) = mg\,e_z.
+\]
+Equivalently,
+\[
+G(x^\star)u^\star = mg\,e_z.
+\]
+\end{definition}
+
+\begin{theorem}[Exact characterization of equilibrium existence]
+Let \(x^\star \in \operatorname{int}(\Omega_r)\). Then \(x^\star\) is an equilibrium point if and only if
+\[
+mg\,e_z \in \mathcal{F}(x^\star).
+\]
+\end{theorem}
+
+\begin{proof}
+By definition, \(x^\star\) is an equilibrium if and only if there exists \(u^\star \in U\) such that
+\[
+F_{\mathrm{mag}}(x^\star,u^\star)=mg\,e_z.
+\]
+Using the control-affine model,
+\[
+F_{\mathrm{mag}}(x^\star,u^\star)=G(x^\star)u^\star.
+\]
+Therefore, \(x^\star\) is an equilibrium if and only if there exists \(u^\star \in U\) satisfying
+\[
+G(x^\star)u^\star = mg\,e_z.
+\]
+This is equivalent to
+\[
+mg\,e_z \in \{G(x^\star)u : u\in U\} = \mathcal{F}(x^\star).
+\]
+\end{proof}
+
+\begin{definition}[Equilibrium region]
+Define the equilibrium region
+\[
+\Omega_{\mathrm{eq}}
+:=
+\{x \in \operatorname{int}(\Omega_r) : mg\,e_z \in \mathcal{F}(x)\}.
+\]
+\end{definition}
+
+\begin{corollary}
+\(\Omega_{\mathrm{eq}}\) is exactly the set of admissible points at which static hover is achievable.
+\end{corollary}
+
+\begin{proof}
+Immediate from the theorem by pointwise application over \(\operatorname{int}(\Omega_r)\).
+\end{proof}
+
+\section{Interior Points and Nonempty Interior of the Equilibrium Region}
+
+The assignment asks for conditions guaranteeing not just isolated equilibria, but a nonempty interior subset of admissible hover points.
+
+\begin{theorem}[Local persistence of equilibrium]
+Suppose \(g_i \in C^1(\Omega_r;\mathbb{R}^3)\) for \(i=1,\dots,6\). Let \(x^\star \in \operatorname{int}(\Omega_r)\). If
+\[
+mg\,e_z \in \operatorname{int}\big(\mathcal{F}(x^\star)\big),
+\]
+then there exists an open neighborhood \(N\) of \(x^\star\) such that
+\[
+N \subset \Omega_{\mathrm{eq}}.
+\]
+In particular, \(\Omega_{\mathrm{eq}}\) has nonempty interior.
+\end{theorem}
+
+\begin{proof}
+Because each \(g_i\) is \(C^1\), the matrix \(G(x)\) depends continuously on \(x\). Since
+\[
+\mathcal{F}(x)=G(x)U
+\]
+and \(U\) is compact, the set-valued map \(x\mapsto \mathcal{F}(x)\) is continuous in the Hausdorff metric.
+
+Assume
+\[
+mg\,e_z \in \operatorname{int}\big(\mathcal{F}(x^\star)\big).
+\]
+Then there exists \(\varepsilon>0\) such that
+\[
+B_\varepsilon(mg\,e_z)\subset \mathcal{F}(x^\star).
+\]
+By Hausdorff continuity, there exists a neighborhood \(N\) of \(x^\star\) such that
+\[
+d_H\big(\mathcal{F}(x),\mathcal{F}(x^\star)\big)<\frac{\varepsilon}{2}
+\qquad \text{for all } x\in N.
+\]
+We claim that \(mg\,e_z \in \mathcal{F}(x)\) for all \(x\in N\). Suppose not. Then for some \(x\in N\), one has
+\[
+mg\,e_z \notin \mathcal{F}(x).
+\]
+Since \(\mathcal{F}(x)\) is compact, it is closed. Hence
+\[
+\delta:=\operatorname{dist}\big(mg\,e_z,\mathcal{F}(x)\big)>0.
+\]
+Choose \(y\in B_{\min\{\varepsilon/2,\delta/2\}}(mg\,e_z)\). Then \(y\in \mathcal{F}(x^\star)\), so by the Hausdorff bound there exists \(z\in \mathcal{F}(x)\) such that
+\[
+\|y-z\|<\frac{\varepsilon}{2}.
+\]
+But also
+\[
+\|mg\,e_z-z\|\le \|mg\,e_z-y\|+\|y-z\|<\frac{\delta}{2}+\frac{\varepsilon}{2}.
+\]
+Taking \(y\) so that \(\|mg\,e_z-y\|<\delta/2\) and using \(\varepsilon/2\le \delta/2\) if necessary by shrinking \(N\), we obtain
+\[
+\|mg\,e_z-z\|<\delta,
+\]
+contradicting the definition of \(\delta\). Therefore \(mg\,e_z\in \mathcal{F}(x)\) for all \(x\in N\), and Theorem 1 implies \(N\subset \Omega_{\mathrm{eq}}\).
+\end{proof}
+
+\begin{remark}
+This theorem is the correct mechanism behind the phrase ``nonempty interior subset'' in the assignment. Pointwise feasibility alone does not guarantee an open equilibrium region; strict interior feasibility does.
+\end{remark}
+
+\section{Unconstrained Inputs and Rank Conditions}
+
+We now separate the unconstrained-input case from the bounded-input case.
+
+\begin{proposition}[Unconstrained-input equilibrium criterion]
+Suppose the actuator inputs are unconstrained, i.e.
+\[
+U = \mathbb{R}^6.
+\]
+Then \(x^\star \in \operatorname{int}(\Omega_r)\) is an equilibrium if and only if
+\[
+mg\,e_z \in \operatorname{Im} G(x^\star).
+\]
+\end{proposition}
+
+\begin{proof}
+If \(U=\mathbb{R}^6\), then
+\[
+\mathcal{F}(x^\star)=\{G(x^\star)u : u \in \mathbb{R}^6\}=\operatorname{Im} G(x^\star).
+\]
+Apply the equilibrium characterization theorem.
+\end{proof}
+
+\begin{corollary}[Rank-3 sufficiency in the unconstrained case]
+If
+\[
+\operatorname{rank} G(x^\star)=3,
+\]
+then \(x^\star\) is an equilibrium point in the unconstrained-input model.
+\end{corollary}
+
+\begin{proof}
+If \(\operatorname{rank} G(x^\star)=3\), then
+\[
+\operatorname{Im} G(x^\star)=\mathbb{R}^3.
+\]
+Hence
+\[
+mg\,e_z \in \operatorname{Im} G(x^\star).
+\]
+Apply the proposition above.
+\end{proof}
+
+\begin{remark}
+The rank condition is sufficient only in the unconstrained-input model. It does \emph{not} imply bounded-input feasibility by itself.
+\end{remark}
+
+\section{Bounded Inputs and Actuator Authority}
+
+With bounded inputs, the correct object is the reachable force polytope
+\[
+\mathcal{F}(x)=G(x)U.
+\]
+Even if \(\operatorname{rank}G(x)=3\), equilibrium may fail if \(mg\,e_z\) lies outside \(\mathcal{F}(x)\).
+
+Thus, for bounded actuators, the necessary and sufficient condition remains
+\[
+mg\,e_z \in \mathcal{F}(x^\star),
+\]
+not merely
+\[
+mg\,e_z \in \operatorname{Im}G(x^\star).
+\]
+
+\begin{lemma}[Symmetric-bounds sufficient condition]
+Assume the actuator set is symmetric:
+\[
+U = \prod_{i=1}^6 [-\bar u_i,\bar u_i].
+\]
+Fix \(x^\star \in \operatorname{int}(\Omega_r)\). If \(\operatorname{rank}G(x^\star)=3\), then there exists a neighborhood of the origin in \(\mathbb{R}^3\) contained in \(\mathcal{F}(x^\star)\). Consequently, if \(\|mg\,e_z\|\) is sufficiently small relative to actuator authority, then
+\[
+mg\,e_z \in \operatorname{int}\big(\mathcal{F}(x^\star)\big),
+\]
+and therefore \(x^\star\) lies in the interior of the equilibrium region.
+\end{lemma}
+
+\begin{proof}
+Because \(\operatorname{rank}G(x^\star)=3\), the linear map
+\[
+u \mapsto G(x^\star)u
+\]
+has full row rank. Since \(U\) contains an open neighborhood of the origin in \(\mathbb{R}^6\) under symmetric bounds, its image under \(G(x^\star)\) contains an open neighborhood of the origin in \(\mathbb{R}^3\). Thus \(0 \in \operatorname{int}(\mathcal{F}(x^\star))\). Scaling relative to the actuator magnitudes yields the stated conclusion for sufficiently small \(\|mg\,e_z\|\).
+\end{proof}
+
+\begin{remark}
+This is the correct place for the rank condition to appear in the bounded-input theory: as a structural hypothesis implying local force authority near the origin when the bounds are symmetric, not as a standalone equilibrium criterion.
+\end{remark}
+
+\section{Are Six Face Actuators Sufficient?}
+
+The answer is conditional.
+
+\begin{proposition}
+Six scalar face-actuator inputs are sufficient to maintain equilibrium at a point \(x^\star\) if and only if
+\[
+mg\,e_z \in \mathcal{F}(x^\star).
+\]
+They are sufficient on a region \(D \subset \operatorname{int}(\Omega_r)\) if and only if
+\[
+mg\,e_z \in \mathcal{F}(x)
+\qquad \text{for every } x \in D.
+\]
+\end{proposition}
+
+\begin{proof}
+Immediate from the equilibrium characterization theorem, applied pointwise.
+\end{proof}
+
+\begin{remark}
+Having six inputs does not automatically imply full three-axis force authority. Sufficiency depends on the geometry of the actuator basis fields \(g_i(x)\), the input bounds, and, in a physically realizable magnetic model, the field-gradient structure that produces force.
+\end{remark}
+
+\section{Physical Magnetic Models}
+
+The abstract control-affine model is appropriate for Problem 1 because it exposes the equilibrium geometry cleanly. However, the assignment also introduces more physically grounded field models.
+
+Let
+\[
+B(x,u)=\sum_{i=1}^6 u_i B_i(x),
+\]
+where each \(B_i\) is the field contribution from one face actuator.
+
+Two representative force laws are:
+
+\subsection*{Permanent or controlled dipole model}
+\[
+F_{\mathrm{mag}}(x,u)=\nabla\big(\mu \cdot B(x,u)\big).
+\]
+If \(\mu\) is fixed, then this remains affine in \(u\), so the reachable force set analysis may still be recast in control-affine form.
+
+\subsection*{Induced-dipole model}
+\[
+F_{\mathrm{mag}}(x,u)=\frac{\alpha}{2}\nabla \|B(x,u)\|^2.
+\]
+Since
+\[
+\|B(x,u)\|^2
+=
+\left\|\sum_{i=1}^6 u_i B_i(x)\right\|^2,
+\]
+the resulting force law is quadratic in \(u\). Therefore the reachable force set at a point is no longer
+\[
+\mathcal{F}(x)=G(x)U,
+\]
+but rather the image of the box \(U\) under a generally nonlinear quadratic map. In particular:
+\begin{itemize}[leftmargin=1.5em]
+    \item it is generally \emph{not} a zonotope,
+    \item it need not be convex,
+    \item feasibility may be substantially harder to check.
+\end{itemize}
+
+\begin{remark}
+Thus, the control-affine theory developed above is exact for the abstract surrogate and for fixed-orientation permanent-dipole models, but it becomes only a surrogate approximation for induced-dipole systems.
+\end{remark}
+
+\section{Final Answer to Problem 1}
+
+The formal solution to Problem 1 is as follows.
+
+\begin{enumerate}[label=\textbf{(\arabic*)}, leftmargin=1.5em]
+    \item A point \(x^\star \in \operatorname{int}(\Omega_r)\) is an equilibrium if and only if
+    \[
+    mg\,e_z \in \mathcal{F}(x^\star).
+    \]
+
+    \item The equilibrium region is
+    \[
+    \Omega_{\mathrm{eq}}
+    =
+    \{x \in \operatorname{int}(\Omega_r) : mg\,e_z \in \mathcal{F}(x)\}.
+    \]
+
+    \item If
+    \[
+    mg\,e_z \in \operatorname{int}(\mathcal{F}(x^\star)),
+    \]
+    then \(\Omega_{\mathrm{eq}}\) contains an open neighborhood of \(x^\star\), hence has nonempty interior.
+
+    \item In the unconstrained-input model \(U=\mathbb{R}^6\), equilibrium exists if and only if
+    \[
+    mg\,e_z \in \operatorname{Im}G(x^\star),
+    \]
+    and \(\operatorname{rank}G(x^\star)=3\) is sufficient.
+
+    \item In the bounded-input case, rank \(3\) alone is not enough. The required gravity-canceling force must lie inside the bounded reachable force set \(\mathcal{F}(x^\star)\).
+
+    \item Under symmetric bounds, rank \(3\) implies local interior force authority around the origin, so sufficiently small required hover forces belong to \(\operatorname{int}(\mathcal{F}(x^\star))\).
+
+    \item For induced-dipole physics, the control-affine zonotope picture generally breaks down because the force law becomes quadratic in \(u\).
+\end{enumerate}
+
+\end{document}

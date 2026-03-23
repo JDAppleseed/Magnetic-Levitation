@@ -1,0 +1,6 @@
+{
+  "gravity": -9.81,
+  "mean_z_acceleration": -9.81,
+  "mode": "free",
+  "relative_error": 0.0
+}

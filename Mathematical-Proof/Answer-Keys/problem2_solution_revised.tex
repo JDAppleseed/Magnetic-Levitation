@@ -1,0 +1,424 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{\textbf{Problem 2 Solution: Local Stability, Linearization, and Feedback Design}}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+We work under the translation-only model fixed in Problem 1. The admissible center-of-mass region is
+\[
+\Omega_r=[r,L-r]^3 \subset \mathbb{R}^3,
+\]
+and gravity acts as $-mg\,e_z$, where $e_z=(0,0,1)^\top$ points upward.
+
+The translational dynamics are
+\[
+m\ddot x = F_{\mathrm{mag}}(x,u)-mg\,e_z,
+\qquad x\in\Omega_r,\quad u\in U\subset\mathbb{R}^6.
+\]
+For the main analysis we adopt the control-affine surrogate
+\[
+F_{\mathrm{mag}}(x,u)=G(x)u=\sum_{i=1}^6 u_i g_i(x),
+\]
+where $g_i\in C^1(\Omega_r;\mathbb{R}^3)$ and
+\[
+G(x)=
+\begin{bmatrix}
+| & | & & |\\
+g_1(x) & g_2(x) & \cdots & g_6(x)\\
+| & | & & |
+\end{bmatrix}
+\in \mathbb{R}^{3\times 6}.
+\]
+We assume there is no passive damping or drag unless explicitly introduced.
+
+Let $x^\star\in\operatorname{int}(\Omega_r)$ be an equilibrium point from Problem 1, so there exists $u^\star\in U$ such that
+\[
+G(x^\star)u^\star=mg\,e_z.
+\]
+
+\section{Linearization About an Equilibrium}
+
+Set
+\[
+x=x^\star+\delta x,
+\qquad
+u=u^\star+\delta u,
+\qquad
+\delta v=\delta \dot x.
+\]
+We derive the first-order perturbation model.
+
+\begin{theorem}[Linearization about an equilibrium]
+Let $x^\star\in\operatorname{int}(\Omega_r)$ and $u^\star\in U$ satisfy
+\[
+G(x^\star)u^\star=mg\,e_z.
+\]
+Then the first-order perturbation dynamics are
+\[
+m\,\delta \ddot x = A_x\,\delta x + B_x\,\delta u,
+\]
+where
+\[
+A_x := \sum_{i=1}^6 u_i^\star\,Dg_i(x^\star) \in \mathbb{R}^{3\times 3},
+\qquad
+B_x := G(x^\star) \in \mathbb{R}^{3\times 6}.
+\]
+Equivalently, in first-order state form with
+\[
+\xi=
+\begin{bmatrix}
+\delta x\\
+\delta v
+\end{bmatrix},
+\]
+we have
+\[
+\dot \xi = A\xi+B\delta u,
+\]
+with
+\[
+A=
+\begin{bmatrix}
+0&I\\
+\frac{1}{m}A_x&0
+\end{bmatrix},
+\qquad
+B=
+\begin{bmatrix}
+0\\
+\frac{1}{m}B_x
+\end{bmatrix}.
+\]
+\end{theorem}
+
+\begin{proof}
+Expand the dynamics about $(x^\star,u^\star)$:
+\[
+m(\ddot x^\star+\delta \ddot x)=G(x^\star+\delta x)(u^\star+\delta u)-mg\,e_z.
+\]
+Since $x^\star$ is an equilibrium, $\ddot x^\star=0$ and
+\[
+G(x^\star)u^\star=mg\,e_z.
+\]
+Hence
+\[
+m\,\delta \ddot x = G(x^\star+\delta x)u^\star + G(x^\star+\delta x)\delta u - G(x^\star)u^\star.
+\]
+Using the first-order expansion
+\[
+G(x^\star+\delta x)=G(x^\star)+\sum_{j=1}^3 \frac{\partial G}{\partial x_j}(x^\star)\,\delta x_j + o(\|\delta x\|),
+\]
+we obtain
+\[
+G(x^\star+\delta x)u^\star
+=
+G(x^\star)u^\star
++
+\left(\sum_{j=1}^3 \frac{\partial G}{\partial x_j}(x^\star)u^\star\,\delta x_j\right)
++o(\|\delta x\|).
+\]
+Also,
+\[
+G(x^\star+\delta x)\delta u = G(x^\star)\delta u + o(\|\delta x\|\,\|\delta u\|).
+\]
+Discarding higher-order terms and canceling $G(x^\star)u^\star=mg\,e_z$ yields
+\[
+m\,\delta \ddot x =
+\left(\sum_{j=1}^3 \frac{\partial G}{\partial x_j}(x^\star)u^\star\,\delta x_j\right)
++
+G(x^\star)\delta u.
+\]
+Because the $i$th column of $G(x)$ is $g_i(x)$, the Jacobian term may be written as
+\[
+\sum_{i=1}^6 u_i^\star Dg_i(x^\star)\,\delta x.
+\]
+Thus
+\[
+A_x=\sum_{i=1}^6 u_i^\star Dg_i(x^\star),
+\qquad
+B_x=G(x^\star),
+\]
+as claimed. The first-order state-space form follows by setting $\delta v=\delta \dot x$.
+\end{proof}
+
+\begin{remark}[Interpretation]
+The matrix $A_x$ captures how the equilibrium field gradients feed position perturbations back into force, while $B_x$ is the first-order actuator allocation map from input perturbations to net force perturbations.
+\end{remark}
+
+\section{Stabilizability Conditions}
+
+Problem 2 asks when the linearized system is locally stabilizable.
+
+\begin{proposition}[Necessary condition via PBH geometry]
+Let $(A,B)$ be the linearized pair above. If $\operatorname{rank}(B_x)<3$, then there exists a nonzero vector $n\in\mathbb{R}^3$ such that
+\[
+n^\top B_x=0.
+\]
+Consequently, perturbations along the translational direction $n$ receive no first-order control input. Therefore, if $A$ has an unstable mode whose translational component lies in such an uncontrollable direction, then $(A,B)$ is not stabilizable.
+\end{proposition}
+
+\begin{proof}
+If $\operatorname{rank}(B_x)<3$, then the left nullspace of $B_x$ is nontrivial, so there exists $n\neq 0$ with $n^\top B_x=0$. Since
+\[
+B=
+\begin{bmatrix}
+0\\
+\frac{1}{m}B_x
+\end{bmatrix},
+\]
+this means that no first-order input can directly generate acceleration in the direction $n$. If $A$ has an unstable eigenvector whose translational component lies in this uncontrollable subspace, then the Popov--Belevitch--Hautus criterion fails, so $(A,B)$ is not stabilizable.
+\end{proof}
+
+\begin{remark}
+Thus $\operatorname{rank}(B_x)=3$ is not by itself sufficient for stabilizability, but it is the natural full translational authority condition. The exact criterion is the PBH stabilizability test.
+\end{remark}
+
+\begin{corollary}[Full translational input authority]
+If $\operatorname{rank}(B_x)=3$, then the lower block of $B$ spans all translational acceleration directions.
+\end{corollary}
+
+\section{Two-Layer Feedback Architecture}
+
+A key point in this problem is that PID should not be interpreted as six unrelated SISO controllers on the six actuator channels. The correct local architecture is:
+
+\begin{enumerate}[label=\textbf{Step \arabic*:},leftmargin=1.6cm]
+\item An outer-loop controller computes a desired net force perturbation $f_{\mathrm{cmd}}\in\mathbb{R}^3$ from $(\delta x,\delta v)$.
+\item An allocation map computes an actuator perturbation $\delta u\in\mathbb{R}^6$ satisfying, approximately or exactly,
+\[
+B_x\delta u=f_{\mathrm{cmd}}.
+\]
+\end{enumerate}
+
+A standard local PID-like outer loop is
+\[
+f_{\mathrm{cmd}} = -K_p\,\delta x - K_d\,\delta v - K_i\eta,
+\qquad
+\dot\eta=\delta x,
+\]
+where $K_p,K_d,K_i\in\mathbb{R}^{3\times 3}$ are gain matrices.
+
+If one ignores the integral term initially, the simplest allocation is the minimum-norm pseudoinverse solution
+\[
+\delta u = B_x^\dagger f_{\mathrm{cmd}}.
+\]
+
+\begin{remark}[Allocation and saturation]
+The pseudoinverse gives the minimum-norm unconstrained actuator perturbation, but it may violate actuator bounds even when the desired force is feasible. In practice one replaces it with a bounded least-squares or quadratic-program allocation step.
+\end{remark}
+
+\section{Local Asymptotic Stabilization by PD + Allocation}
+
+We now show that the two-layer architecture yields a stabilizing controller when local translational authority is full.
+
+\begin{theorem}[Local asymptotic stabilization by PD force feedback]
+Assume $\operatorname{rank}(B_x)=3$. Let $K_p,K_d\in\mathbb{R}^{3\times 3}$ be symmetric positive definite. Suppose the allocation law enforces
+\[
+B_x\delta u = -A_x\delta x - K_p\delta x - K_d\delta v.
+\]
+Then the closed-loop linearized perturbation dynamics reduce to
+\[
+m\,\delta \ddot x + K_d\delta \dot x + K_p\delta x = 0.
+\]
+Moreover, the origin $(\delta x,\delta v)=(0,0)$ is locally asymptotically stable.
+\end{theorem}
+
+\begin{proof}
+Because $\operatorname{rank}(B_x)=3$, the linear map $\delta u\mapsto B_x\delta u$ is surjective onto $\mathbb{R}^3$, so the stated allocation equation is solvable for every $(\delta x,\delta v)$. Substituting it into the linearized dynamics
+\[
+m\,\delta \ddot x = A_x\delta x + B_x\delta u
+\]
+yields
+\[
+m\,\delta \ddot x = A_x\delta x - A_x\delta x - K_p\delta x - K_d\delta v,
+\]
+so
+\[
+m\,\delta \ddot x + K_d\delta \dot x + K_p\delta x = 0.
+\]
+Consider the Lyapunov function
+\[
+V(\delta x,\delta v)=\frac12 m\,\delta v^\top\delta v + \frac12\delta x^\top K_p\delta x.
+\]
+Since $m>0$ and $K_p\succ 0$, $V$ is positive definite. Along closed-loop trajectories,
+\[
+\dot V = m\,\delta v^\top\delta \ddot x + \delta x^\top K_p\delta v.
+\]
+Using the closed-loop dynamics,
+\[
+m\,\delta \ddot x = -K_d\delta v - K_p\delta x,
+\]
+we obtain
+\[
+\dot V = \delta v^\top(-K_d\delta v - K_p\delta x) + \delta x^\top K_p\delta v = -\delta v^\top K_d\delta v \le 0.
+\]
+Thus $\dot V$ is negative semidefinite. By LaSalle's invariance principle, trajectories converge to the largest invariant subset of
+\[
+\{(\delta x,\delta v): \dot V=0\} = \{(\delta x,\delta v): \delta v=0\}.
+\]
+On this set, $\delta v=0$ for all time. Invariance then requires $\delta \dot v=\delta \ddot x=0$, so the closed-loop dynamics imply
+\[
+K_p\delta x=0.
+\]
+Since $K_p\succ 0$, this gives $\delta x=0$. Hence the largest invariant subset of $\{\dot V=0\}$ is the singleton $\{(0,0)\}$. By LaSalle's principle, $(\delta x,\delta v)\to (0,0)$, so the origin is asymptotically stable.
+\end{proof}
+
+\begin{remark}
+This theorem proves local asymptotic stabilization of the linearized closed-loop system. By Lyapunov's indirect method, asymptotic stability of the linearized closed-loop system implies local asymptotic stability of the corresponding equilibrium of the full nonlinear system.
+\end{remark}
+
+\section{PID Interpretation and Integral Action}
+
+The assignment explicitly asks whether PID is sufficient locally. The answer is yes, with the correct MIMO interpretation.
+
+\begin{proposition}[Correct local PID interpretation]
+A locally meaningful PID controller for this problem is obtained by choosing a desired net force
+\[
+f_{\mathrm{cmd}} = -K_p\delta x - K_d\delta v - K_i\eta,
+\qquad
+\dot\eta=\delta x,
+\]
+and then solving an allocation problem of the form
+\[
+B_x\delta u \approx f_{\mathrm{cmd}} - A_x\delta x.
+\]
+This is the proper multivariable generalization of PID for the six-actuator magnetic levitation problem.
+\end{proposition}
+
+\begin{proof}
+The linearized translational dynamics are
+\[
+m\,\delta \ddot x = A_x\delta x + B_x\delta u.
+\]
+If we desire a target closed-loop perturbation force law
+\[
+m\,\delta \ddot x = -K_p\delta x - K_d\delta v - K_i\eta,
+\]
+then $\delta u$ must be chosen so that
+\[
+B_x\delta u = -A_x\delta x - K_p\delta x - K_d\delta v - K_i\eta.
+\]
+Thus the control task naturally decomposes into an outer-loop PID force design and an inner-loop actuator allocation. This is exactly the multivariable PID interpretation required by the problem.
+\end{proof}
+
+\begin{remark}
+Integral action is useful for canceling constant model mismatch and static disturbances, but it must be implemented with anti-windup or constrained allocation when actuator limits are present.
+\end{remark}
+
+\section{Comparison with State Feedback}
+
+The PD construction above is not the only local controller. Since the linearized system is
+\[
+\dot\xi=A\xi+B\delta u,
+\]
+any stabilizing full-state feedback law
+\[
+\delta u = -K\xi
+\]
+may be used whenever $(A,B)$ is stabilizable. In particular, LQR provides a systematic way to choose $K$ and often gives better transient shaping than hand-tuned PID gains. The advantage of the two-layer PD/PID approach is physical interpretability: the outer loop produces a desired force, and the inner loop translates that force into actuator commands.
+
+\section{Extension to Physical Magnetic Models}
+
+Problem 2 also asks how the linearization changes for the more physical force laws.
+
+\subsection*{Permanent or controlled dipole model}
+If
+\[
+B(x,u)=\sum_{i=1}^6 u_i B_i(x),
+\qquad
+F_{\mathrm{mag}}(x,u)=\nabla(\mu\cdot B(x,u)),
+\]
+and $\mu$ is fixed, then $F_{\mathrm{mag}}$ remains affine in $u$. The matrices $A_x$ and $B_x$ are obtained exactly as above after replacing $g_i(x)$ by the corresponding force basis fields.
+
+\subsection*{Induced-dipole model}
+If
+\[
+F_{\mathrm{mag}}(x,u)=\frac{\alpha}{2}\nabla\|B(x,u)\|^2,
+\]
+then the force law is quadratic in $u$. In that case one cannot read off $B_x$ from a control-affine matrix $G(x^\star)$, because no such global $G$ exists. Instead,
+\[
+A_x = \left.\frac{\partial F_{\mathrm{mag}}}{\partial x}\right|_{(x^\star,u^\star)},
+\qquad
+B_x = \left.\frac{\partial F_{\mathrm{mag}}}{\partial u}\right|_{(x^\star,u^\star)}
+\]
+must be computed directly from the Jacobians of the nonlinear force law at equilibrium. Once these Jacobians are computed, the local linearized theory above applies unchanged.
+
+\begin{remark}
+Thus the local stabilization theory of Problem 2 is robust across both physical models, provided one linearizes the actual force law at the operating point.
+\end{remark}
+
+\section{Final Answer to Problem 2}
+
+The formal solution to Problem 2 is:
+
+\begin{enumerate}[label=\textbf{(\arabic*)},leftmargin=1.6cm]
+\item The linearization about an equilibrium $(x^\star,u^\star)$ is
+\[
+m\,\delta \ddot x = A_x\delta x + B_x\delta u,
+\qquad
+A_x=\sum_{i=1}^6 u_i^\star Dg_i(x^\star),
+\qquad
+B_x=G(x^\star).
+\]
+
+\item In state form,
+\[
+\dot\xi=A\xi+B\delta u,
+\qquad
+A=
+\begin{bmatrix}
+0&I\\
+\frac{1}{m}A_x&0
+\end{bmatrix},
+\qquad
+B=
+\begin{bmatrix}
+0\\
+\frac{1}{m}B_x
+\end{bmatrix}.
+\]
+
+\item If $\operatorname{rank}(B_x)<3$, then some translational directions receive no first-order input authority. Stabilizability then depends on whether $A$ has unstable modes in those uncontrollable directions, as characterized by the PBH test.
+
+\item If $\operatorname{rank}(B_x)=3$, then there is full local translational force authority, and one can allocate actuator perturbations to realize arbitrary commanded net force perturbations.
+
+\item The correct PID interpretation is two-layer: an outer-loop PID computes a desired force, and an inner-loop allocator computes actuator commands satisfying
+\[
+B_x\delta u \approx f_{\mathrm{cmd}}-A_x\delta x.
+\]
+
+\item With full local translational authority, the allocation law
+\[
+B_x\delta u=-A_x\delta x-K_p\delta x-K_d\delta v
+\]
+reduces the closed-loop dynamics to a damped second-order system
+\[
+m\,\delta \ddot x + K_d\delta \dot x + K_p\delta x = 0,
+\]
+which is asymptotically stable for $K_p,K_d\succ 0$.
+
+\item In the physically grounded magnetic models, the same local theory applies after computing the Jacobians
+\[
+A_x=\left.\frac{\partial F_{\mathrm{mag}}}{\partial x}\right|_{(x^\star,u^\star)},
+\qquad
+B_x=\left.\frac{\partial F_{\mathrm{mag}}}{\partial u}\right|_{(x^\star,u^\star)}.
+\]
+\end{enumerate}
+
+\end{document}

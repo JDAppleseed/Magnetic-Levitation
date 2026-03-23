@@ -1,0 +1,12 @@
+window:
+  width: 1440
+  height: 920
+theme:
+  background: "#14181f"
+  panel: "#1d2430"
+  accent: "#5bd1a5"
+  warning: "#f2c14e"
+  danger: "#ef6f6c"
+  text: "#edf2f7"
+plots:
+  history_seconds: 8.0

@@ -1,0 +1,289 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{\textbf{Problem 5 Solution: Fundamental Limitations}}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+\maketitle
+
+\section{Setup and scope}
+
+We consider the translation-only model on the admissible center-of-mass region $\Omega_r \subset \mathbb{R}^3$:
+\begin{equation}
+ m\ddot x = F_{\mathrm{mag}}(x,u) - mg\,e_z.
+ \label{eq:plant}
+\end{equation}
+As in Problems 1--4, $e_z=(0,0,1)^\top$ points upward, so gravity is $-mg\,e_z$.
+
+Problem 5 asks whether every point in $\Omega_r$ can be stabilized, how spatial decay of actuator influence affects this possibility, and whether stable levitation is possible under purely static conservative field assumptions.
+
+We organize the answer into two layers:
+\begin{enumerate}[label=\textbf{Layer \arabic*:}, leftmargin=1.5em]
+    \item \textbf{Abstract control layer.} Here we reason from the bounded reachable force set and the local input Jacobian, using the results of Problems 1 and 2.
+    \item \textbf{Physical field layer.} Here we impose source-free static field assumptions and prove an Earnshaw-type obstruction via the maximum principle.
+\end{enumerate}
+
+\section{Layer A: abstract necessary conditions for global stabilization}
+
+\subsection{Failure mode 1: lack of equilibrium feasibility}
+
+For each $x\in\Omega_r$, let
+\[
+\mathcal{F}(x):=\{F_{\mathrm{mag}}(x,u):u\in U\}
+\]
+denote the bounded reachable force set.
+
+\begin{proposition}[Global feasibility necessary condition]
+If there exists a point $x^\star\in\Omega_r$ such that
+\begin{equation}
+ mg\,e_z \notin \mathcal{F}(x^\star),
+ \label{eq:not_feasible}
+\end{equation}
+then $x^\star$ admits no equilibrium input, and therefore not every point in $\Omega_r$ can be stabilized.
+\end{proposition}
+
+\begin{proof}
+By the equilibrium characterization from Problem 1, a point $x^\star$ is an equilibrium if and only if
+\[
+mg\,e_z\in\mathcal{F}(x^\star).
+\]
+Thus \eqref{eq:not_feasible} implies that no equilibrium exists at $x^\star$. Since local asymptotic stabilization about a point requires that point to be an equilibrium of the closed-loop system, $x^\star$ cannot be stabilized.
+\end{proof}
+
+\begin{remark}
+This proposition is not deep by itself; it is the global restatement of Problem 1. Its role here is to identify the first obstruction: some points may fail before stabilizability is even considered.
+\end{remark}
+
+\subsection{Failure mode 2: equilibrium exists but is not locally stabilizable}
+
+Suppose $x^\star\in\Omega_r$ admits an equilibrium input $u^\star$. Linearizing the translation-only dynamics about $(x^\star,u^\star)$ gives
+\begin{equation}
+ \delta\dot z = A\,\delta z + B\,\delta u,
+ \label{eq:linsys}
+\end{equation}
+with state $\delta z=(\delta x,\delta v)^\top$, and
+\begin{equation}
+ A=
+ \begin{bmatrix}
+ 0 & I\\
+ m^{-1}A_x & 0
+ \end{bmatrix},
+ \qquad
+ B=
+ \begin{bmatrix}
+ 0\\
+ m^{-1}B_x
+ \end{bmatrix},
+ \label{eq:AB}
+\end{equation}
+where
+\[
+A_x=\frac{\partial F_{\mathrm{mag}}}{\partial x}(x^\star,u^\star),
+\qquad
+B_x=\frac{\partial F_{\mathrm{mag}}}{\partial u}(x^\star,u^\star).
+\]
+
+\begin{proposition}[Rank deficiency as a second failure mode]
+Let $x^\star$ be an equilibrium point. If there exists an eigenvalue $\lambda$ of $A$ with $\operatorname{Re}(\lambda)\ge 0$ and a nonzero left eigenvector $q^\top$ such that
+\begin{equation}
+ q^\top A = \lambda q^\top,
+ \qquad
+ q^\top B = 0,
+ \label{eq:PBHfail}
+\end{equation}
+then the pair $(A,B)$ is not stabilizable, so $x^\star$ is not locally asymptotically stabilizable.
+\end{proposition}
+
+\begin{proof}
+Condition \eqref{eq:PBHfail} is exactly the Popov--Belevitch--Hautus (PBH) failure condition for stabilizability. Therefore the linearization is not stabilizable. By the necessity of linearized stabilizability for local asymptotic stabilization of the nonlinear system, $x^\star$ is not locally asymptotically stabilizable.
+\end{proof}
+
+\begin{remark}
+A useful geometric interpretation is the following: if a direction lies in the left nullspace of $B_x$, then first-order control input cannot directly affect acceleration in that direction. If the field-gradient term $A_x$ has an unstable mode there, stabilization fails even though the point is force-feasible.
+\end{remark}
+
+\section{Decay-induced loss of global force authority}
+
+We now show that bounded actuators together with distance decay can rule out global levitation on sufficiently large domains.
+
+\begin{assumption}[Decay model]
+For each face actuator $i\in\{1,\dots,6\}$, there exists a face location $p_i\in\partial\Omega_r$, constants $C>0$ and $\alpha>0$, such that
+\begin{equation}
+ \|g_i(x)\| \le \frac{C}{\|x-p_i\|^\alpha}
+ \qquad \text{for all } x\in\Omega_r.
+ \label{eq:decay}
+\end{equation}
+Assume also symmetric bounded inputs $|u_i|\le u_{\max}$.
+\end{assumption}
+
+In the control-affine surrogate,
+\[
+F_{\mathrm{mag}}(x,u)=\sum_{i=1}^6 u_i g_i(x).
+\]
+Let $x_c$ denote the cube center. Then $\|x_c-p_i\|=L/2$ for every face actuator.
+
+\begin{proposition}[Critical domain size under decay]
+Under \eqref{eq:decay}, the maximum force magnitude achievable at the cube center satisfies
+\begin{equation}
+ \|F_{\mathrm{mag}}(x_c,u)\| \le 6u_{\max}\,\frac{C}{(L/2)^\alpha}.
+ \label{eq:centerbound}
+\end{equation}
+Consequently, if
+\begin{equation}
+ 6u_{\max}\,\frac{C}{(L/2)^\alpha} < mg,
+ \label{eq:hoverfail}
+\end{equation}
+then the cube center cannot be levitated. Equivalently, defining the critical size
+\begin{equation}
+ L^\star := 2\left(\frac{6u_{\max}C}{mg}\right)^{1/\alpha},
+ \label{eq:Lstar}
+\end{equation}
+any cube with side length $L>L^\star$ fails to admit hover at its center.
+\end{proposition}
+
+\begin{proof}
+At the center $x_c$, the decay bound gives
+\[
+\|g_i(x_c)\|\le \frac{C}{(L/2)^\alpha}
+\qquad \text{for each } i.
+\]
+Hence, for any admissible $u$,
+\[
+\|F_{\mathrm{mag}}(x_c,u)\|
+=
+\left\|\sum_{i=1}^6 u_i g_i(x_c)\right\|
+\le
+\sum_{i=1}^6 |u_i|\,\|g_i(x_c)\|
+\le
+6u_{\max}\,\frac{C}{(L/2)^\alpha},
+\]
+which proves \eqref{eq:centerbound}. If \eqref{eq:hoverfail} holds, then the upward force needed to cancel gravity, whose magnitude is $mg$, is outside the reachable force ball at $x_c$, so $mg\,e_z\notin\mathcal{F}(x_c)$. By Proposition 1, the center cannot be levitated. Solving \eqref{eq:hoverfail} for $L$ gives \eqref{eq:Lstar}.
+\end{proof}
+
+\begin{remark}
+This proposition gives a concrete bridge between the abstract model and physics: even if a controller is perfectly designed, a sufficiently large domain can defeat hover simply because all face influences decay too much before reaching the interior.
+\end{remark}
+
+\section{Layer B: Earnshaw obstruction for static conservative fields}
+
+We now impose genuine static field assumptions.
+
+\begin{assumption}[Static source-free conservative model]
+Fix a constant actuator input $u^\star\in U$ (no feedback, no time variation). Assume:
+\begin{enumerate}[label=(\roman*), leftmargin=1.5em]
+    \item the field is static and source-free in $\operatorname{int}(\Omega_r)$;
+    \item there exists a scalar potential energy $\Psi:\operatorname{int}(\Omega_r)\to\mathbb{R}$ such that
+    \begin{equation}
+    F_{\mathrm{mag}}(x,u^\star) = -\nabla \Psi(x);
+    \label{eq:consforce}
+    \end{equation}
+    \item the total potential
+    \begin{equation}
+    V(x):=\Psi(x)+mgz
+    \label{eq:totalpotential}
+    \end{equation}
+    is harmonic in $\operatorname{int}(\Omega_r)$, i.e.
+    \begin{equation}
+    \Delta V = 0.
+    \label{eq:harmonicV}
+    \end{equation}
+\end{enumerate}
+\end{assumption}
+
+\begin{remark}
+Assumption \eqref{eq:harmonicV} is the mathematical form of the source-free static-field hypothesis used in Earnshaw-type arguments. Since $mgz$ is linear in $x$, it is harmonic:
+\[
+\Delta(mgz)=0.
+\]
+Therefore
+\[
+\Delta V = \Delta(\Psi+mgz)=\Delta\Psi,
+\]
+so the harmonicity of the total potential $V$ is equivalent to the harmonicity of the field-induced potential $\Psi$. The proof below uses only harmonicity of the total potential; it does not depend on the detailed actuator geometry.
+\end{remark}
+
+\begin{lemma}[No strict interior minima for harmonic potentials]
+Let $V$ be harmonic on a connected open set $D\subset\mathbb{R}^3$. Then $V$ has no strict local minimum in $D$ unless it is constant on a neighborhood of that point.
+\end{lemma}
+
+\begin{proof}
+This is the strong maximum principle for harmonic functions.
+\end{proof}
+
+\begin{theorem}[Earnshaw-type obstruction]
+Under Assumption 2, the system admits no asymptotically stable open-loop equilibrium in $\operatorname{int}(\Omega_r)$.
+\end{theorem}
+
+\begin{proof}
+An open-loop equilibrium $x^\star$ for the static input $u^\star$ must satisfy
+\[
+F_{\mathrm{mag}}(x^\star,u^\star)-mg\,e_z=0.
+\]
+Using \eqref{eq:consforce} and \eqref{eq:totalpotential}, this is equivalent to
+\[
+\nabla V(x^\star)=0.
+\]
+For the undamped conservative system \eqref{eq:plant} with fixed input $u^\star$, the total energy
+\[
+H(x,\dot x)=\frac12 m\|\dot x\|^2 + V(x)
+\]
+is conserved. Therefore asymptotic stability is impossible regardless of the shape of $V$. Moreover, even Lyapunov stability of $(x^\star,0)$ requires $x^\star$ to be a local minimum of $V$, since otherwise arbitrarily small perturbations can lower the potential and move away from $x^\star$ while preserving total energy.
+
+But by Assumption \eqref{eq:harmonicV}, $V$ is harmonic in $\operatorname{int}(\Omega_r)$. By the strong maximum principle, a harmonic function cannot possess a strict local minimum in the interior unless it is locally constant. Hence $V$ cannot have a strict interior local minimum at $x^\star$. This rules out even Lyapunov stability, and therefore certainly rules out asymptotic stability, for any open-loop equilibrium in $\operatorname{int}(\Omega_r)$.
+\end{proof}
+
+\begin{remark}
+The conclusion is the precise mathematical content of the Earnshaw obstruction in this setting: purely static, source-free, conservative fields cannot robustly trap the robot at an interior point without feedback or additional nonstatic structure.
+\end{remark}
+
+\section{Consequences}
+
+\begin{corollary}[Necessity of feedback or non-static actuation]
+If the objective is robust interior stabilization throughout a nontrivial subset of $\Omega_r$, then at least one of the following is necessary:
+\begin{enumerate}[label=(\roman*), leftmargin=1.5em]
+    \item active feedback control;
+    \item time-varying or nonstatic fields;
+    \item nonconservative or hybrid actuation (for example, onboard thrusters or other body-fixed force sources);
+    \item operation outside the source-free static conservative regime covered by Theorem 1.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+The abstract results of Problems 1 and 2 show that global stabilization requires both equilibrium feasibility and local stabilizability. Proposition 3 shows that bounded decaying authority can destroy feasibility on large domains. Theorem 1 shows that even when an equilibrium exists, purely static conservative source-free fields cannot make it asymptotically stable in open loop. Therefore robust stabilization requires leaving that regime, for example through feedback, time variation, or hybrid actuation.
+\end{proof}
+
+\section{Final modeling-fidelity remark}
+
+\begin{remark}[What the abstract surrogate can bypass]
+The abstract surrogate
+\[
+F_{\mathrm{mag}}(x,u)=G(x)u
+\]
+is useful for control design because it exposes force authority and stabilizability in a transparent way. However, it can represent force fields with properties that physically realizable magnetostatic systems do not possess, such as arbitrary full-rank force maps everywhere in the interior or force directions incompatible with source-free static field structure. In particular, the surrogate can satisfy rank-$3$ conditions at every point even though a true static electromagnetic system is still subject to the Earnshaw obstruction and Maxwell constraints. Thus the surrogate is a control-design model, not a guarantee of physical realizability.
+\end{remark}
+
+\section{Final summary}
+
+The formal solution to Problem 5 is:
+\begin{enumerate}[label=\textbf{(\arabic*)}, leftmargin=1.5em]
+    \item Global stabilization can fail because some points are not even force-feasible: if $mg\,e_z\notin\mathcal{F}(x^\star)$, no equilibrium exists there.
+    \item Even when an equilibrium exists, local stabilization can fail if the linearized pair $(A,B)$ is not stabilizable; the PBH test gives the precise obstruction.
+    \item Under explicit decay bounds, there is a critical domain size $L^\star$ above which even the cube center cannot be levitated.
+    \item Under static source-free conservative field assumptions with harmonic total potential, no asymptotically stable open-loop interior equilibrium can exist; this is the Earnshaw-type obstruction.
+    \item Therefore global robust stabilization requires feedback, time variation, hybrid actuation, or departure from the static source-free conservative regime.
+\end{enumerate}
+
+\end{document}

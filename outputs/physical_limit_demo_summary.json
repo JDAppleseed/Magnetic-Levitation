@@ -1,0 +1,9 @@
+{
+  "decay_center_force_bound": 97.08478019470685,
+  "decay_center_hover_feasible": true,
+  "decay_critical_side_length": 12.776761133911089,
+  "decay_required_force": 2.4525,
+  "earnshaw_max_abs_trace": 4.0320144717789774e-08,
+  "earnshaw_sample_count": 125,
+  "earnshaw_strict_minimum_count": 0
+}

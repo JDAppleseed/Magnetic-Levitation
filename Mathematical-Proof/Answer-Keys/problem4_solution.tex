@@ -1,0 +1,385 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{\textbf{Problem 4 Solution: Point-to-Point Transfer}}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+We retain the translation-only model on the admissible center-of-mass region $\Omega_r \subset \mathbb{R}^3$:
+\begin{equation}
+ m\ddot x = F_{\mathrm{mag}}(x,u) - mg\,e_z + d(t),
+ \label{eq:plant}
+\end{equation}
+where $x\in\Omega_r$, $u\in U\subset\mathbb{R}^6$, $F_{\mathrm{mag}}$ is $C^1$ in $(x,u)$, and $d(t)$ is a bounded disturbance. As in Problems 1--3, $e_z=(0,0,1)^\top$ points upward, so gravity is $-mg\,e_z$.
+
+Let the desired reference trajectory satisfy
+\begin{equation}
+ x^\star \in C^2([0,T];\operatorname{int}(\Omega_r)),
+ \qquad x^\star(0)=x_0^\star,
+ \qquad x^\star(T)=x_1^\star,
+ \label{eq:traj}
+\end{equation}
+with $x_0^\star,x_1^\star\in\Omega_{\mathrm{eq}}$.
+
+Define the tracking errors
+\begin{equation}
+ e := x-x^\star(t),
+ \qquad \dot e := \dot x - \dot x^\star(t).
+ \label{eq:error}
+\end{equation}
+Then
+\begin{equation}
+ m\ddot e = F_{\mathrm{mag}}(x,u) - mg\,e_z - m\ddot x^\star(t) + d(t).
+ \label{eq:error_dynamics_raw}
+\end{equation}
+
+\section{Two-layer tracking controller}
+
+The commanded force is chosen as
+\begin{equation}
+ f_{\mathrm{cmd}}(t,x,\dot x)
+ = mg\,e_z + m\ddot x^\star(t) - K_p e - K_d \dot e,
+ \label{eq:fcmd_pd}
+\end{equation}
+where $K_p\succ 0$ and $K_d\succ 0$.
+
+Thus the controller has the same two-layer structure as in Problem 3:
+\begin{enumerate}[label=\textbf{Layer \arabic*:}, leftmargin=1.5em]
+  \item Outer loop: compute $f_{\mathrm{cmd}}$ from the tracking error and the feedforward term $m\ddot x^\star(t)$.
+  \item Inner allocation: choose $u$ so that $F_{\mathrm{mag}}(x,u)$ realizes $f_{\mathrm{cmd}}$ exactly or approximately.
+\end{enumerate}
+
+\begin{remark}
+The term $m\ddot x^\star(t)$ is the key structural difference from Problem 3. A moving reference requires the nominal actuator input to produce both gravity cancellation and the inertial force needed to accelerate along the path.
+\end{remark}
+
+\section{Trajectory force-feasibility}
+
+We first isolate the necessary force-feasibility condition.
+
+\begin{definition}[Pointwise trajectory force-feasibility]
+A reference trajectory $x^\star(t)$ is pointwise force-feasible on $[0,T]$ if for every $t\in[0,T]$,
+\begin{equation}
+ mg\,e_z + m\ddot x^\star(t) \in \mathcal{F}(x^\star(t)),
+ \label{eq:force_feasible}
+\end{equation}
+where
+\[
+\mathcal{F}(x)=\{F_{\mathrm{mag}}(x,u):u\in U\}
+\]
+is the bounded reachable force set at position $x$.
+\end{definition}
+
+\begin{proposition}[Necessary condition for trajectory tracking]
+Suppose a control input $u^\star(t)\in U$ exists such that the trajectory $x^\star(t)$ is an exact solution of \eqref{eq:plant} with $d(t)\equiv 0$. Then \eqref{eq:force_feasible} holds for all $t\in[0,T]$.
+\end{proposition}
+
+\begin{proof}
+If $x(t)=x^\star(t)$ is an exact solution of \eqref{eq:plant}, then substituting into the plant gives
+\[
+ m\ddot x^\star(t) = F_{\mathrm{mag}}(x^\star(t),u^\star(t)) - mg\,e_z.
+\]
+Hence
+\[
+ F_{\mathrm{mag}}(x^\star(t),u^\star(t)) = mg\,e_z + m\ddot x^\star(t).
+\]
+Since $u^\star(t)\in U$, the right-hand side belongs to $\mathcal{F}(x^\star(t))$ for every $t$.
+\end{proof}
+
+\begin{remark}
+This proposition shows that naive geometric interpolation is generally insufficient. Even if a path stays inside $\Omega_r$, it may fail to be dynamically trackable because the required nominal force $mg\,e_z+m\ddot x^\star(t)$ may leave the reachable force set.
+\end{remark}
+
+\section{Ideal PD tracking}
+
+\begin{theorem}[Ideal PD tracking]
+Assume:
+\begin{enumerate}[label=(\roman*), leftmargin=1.5em]
+  \item $x^\star(\cdot)\in C^2([0,T];\operatorname{int}(\Omega_r))$,
+  \item there exists a feedback allocator $u=\alpha(x,\dot x,t)$ such that
+  \begin{equation}
+  F_{\mathrm{mag}}(x,u) = mg\,e_z + m\ddot x^\star(t) - K_p e - K_d \dot e
+  \label{eq:exact_force_realization}
+  \end{equation}
+  for all $(x,\dot x,t)$ in a neighborhood of the reference trajectory,
+  \item $K_p\succ0$ and $K_d\succ0$.
+\end{enumerate}
+Then the tracking error satisfies
+\begin{equation}
+ m\ddot e + K_d\dot e + K_p e = 0,
+ \label{eq:ideal_tracking_error}
+\end{equation}
+and therefore $(e(t),\dot e(t))\to(0,0)$ as $t\to\infty$ whenever the reference is continued as a constant for $t\ge T$.
+\end{theorem}
+
+\begin{proof}
+Substituting \eqref{eq:exact_force_realization} into \eqref{eq:error_dynamics_raw} with $d(t)\equiv 0$ gives
+\[
+ m\ddot e = -K_p e - K_d\dot e,
+\]
+which is \eqref{eq:ideal_tracking_error}. Consider the Lyapunov function
+\[
+ V(e,\dot e)=\frac12 m\,\dot e^\top\dot e + \frac12 e^\top K_p e.
+\]
+Since $K_p\succ0$, $V$ is positive definite. Differentiating gives
+\[
+ \dot V = m\,\dot e^\top\ddot e + e^\top K_p\dot e.
+\]
+Using \eqref{eq:ideal_tracking_error},
+\[
+ \dot V = \dot e^\top(-K_p e - K_d\dot e)+e^\top K_p\dot e
+ = -\dot e^\top K_d\dot e\le0.
+\]
+The set where $\dot V=0$ is $\dot e=0$. On this set, \eqref{eq:ideal_tracking_error} implies
+\[
+ 0 = -K_p e,
+\]
+so $e=0$ because $K_p\succ0$. Hence the largest invariant set in $\{\dot V=0\}$ is the origin, and LaSalle's invariance principle yields $(e(t),\dot e(t))\to(0,0)$.
+\end{proof}
+
+\section{Local bounded-input tracking}
+
+We now give the physically relevant result: local tracking with bounded actuators along a time-varying reference.
+
+\begin{theorem}[Local bounded-input tracking]
+Let $x^\star(\cdot)\in C^2([0,T];D)$, where $D\subset\operatorname{int}(\Omega_r)$ is compact. Suppose:
+\begin{enumerate}[label=(\roman*), leftmargin=1.5em]
+  \item $F_{\mathrm{mag}}\in C^1$,
+  \item for every $t\in[0,T]$ there exists $u^\star(t)\in\operatorname{int}(U)$ such that
+  \begin{equation}
+  F_{\mathrm{mag}}(x^\star(t),u^\star(t)) = mg\,e_z + m\ddot x^\star(t),
+  \label{eq:nominal_force_realization}
+  \end{equation}
+  \item the input Jacobian
+  \begin{equation}
+  B(t):=\frac{\partial F_{\mathrm{mag}}}{\partial u}(x^\star(t),u^\star(t))
+  \label{eq:Bt}
+  \end{equation}
+  has rank $3$ for all $t\in[0,T]$,
+  \item $K_p\succ0$ and $K_d\succ0$.
+\end{enumerate}
+Then there exists $\varepsilon>0$ and a bounded $C^1$ feedback law $u=\pi(x,\dot x,t)\in U$, defined whenever
+\[
+ \|x-x^\star(t)\|+\|\dot x-\dot x^\star(t)\|<\varepsilon,
+\]
+such that the tracking error is locally asymptotically stable along the reference trajectory.
+\end{theorem}
+
+\begin{proof}
+Define
+\[
+ \Phi(x,u):=F_{\mathrm{mag}}(x,u).
+\]
+At each fixed $t\in[0,T]$, assumptions (ii) and (iii) imply that
+\[
+ D_u\Phi(x^\star(t),u^\star(t)) = B(t)
+\]
+has full row rank $3$. Therefore, by the surjective implicit function theorem (equivalently, the constant-rank theorem in surjective form), for each $t$ there exist neighborhoods $N_x(t)$ of $x^\star(t)$, $N_f(t)$ of
+\[
+ f^\star(t):=mg\,e_z+m\ddot x^\star(t),
+\]
+and a $C^1$ local right-inverse allocator
+\[
+ \alpha_t:N_x(t)\times N_f(t)\to U
+\]
+such that
+\[
+ F_{\mathrm{mag}}(x,\alpha_t(x,f))=f
+\]
+for all $(x,f)\in N_x(t)\times N_f(t)$.
+
+Because $[0,T]$ is compact and the trajectory $t\mapsto(x^\star(t),u^\star(t),f^\star(t))$ is continuous, these local neighborhoods may be chosen uniformly in time: there exists $\varepsilon>0$ such that whenever
+\[
+ \|x-x^\star(t)\|<\varepsilon,
+ \qquad
+ \|f-f^\star(t)\|<\varepsilon,
+\]
+there is a well-defined $C^1$ allocator
+\[
+ u=\alpha(x,f,t)\in U
+\]
+with
+\[
+ F_{\mathrm{mag}}(x,\alpha(x,f,t))=f.
+\]
+
+Now choose
+\[
+ f = f_{\mathrm{cmd}}(t,x,\dot x)
+ = mg\,e_z+m\ddot x^\star(t)-K_p e-K_d\dot e.
+\]
+For sufficiently small $\|e\|+\|\dot e\|$, we have $f_{\mathrm{cmd}}\in N_f(t)$ uniformly in $t$. Hence the bounded feedback law
+\[
+ u=\pi(x,\dot x,t):=\alpha(x,f_{\mathrm{cmd}}(t,x,\dot x),t)
+\]
+is well defined and satisfies
+\[
+ F_{\mathrm{mag}}(x,u)=f_{\mathrm{cmd}}.
+\]
+Substituting into \eqref{eq:error_dynamics_raw} with $d(t)\equiv0$ yields
+\[
+ m\ddot e + K_d\dot e + K_p e =0.
+\]
+By Theorem 1, the origin of the tracking-error dynamics is asymptotically stable. Therefore the tracking error is locally asymptotically stable along the trajectory.
+\end{proof}
+
+\begin{remark}
+Assumption \eqref{eq:nominal_force_realization} is a strict-interior version of the pointwise force-feasibility condition. The preceding proposition gives the necessary condition; the theorem assumes enough interior force authority to make the local allocator exist uniformly along the trajectory.
+\end{remark}
+
+\section{Robustness and ISS tracking bound}
+
+We now account for bounded disturbance and force-realization error. Let
+\begin{equation}
+ \Delta_f(x,\dot x,t)
+ := F_{\mathrm{mag}}(x,u)-f_{\mathrm{cmd}}(t,x,\dot x).
+ \label{eq:deltaf}
+\end{equation}
+Then the closed-loop tracking error satisfies
+\begin{equation}
+ m\ddot e + K_d\dot e + K_p e = d(t)+\Delta_f(x,\dot x,t).
+ \label{eq:tracking_with_disturbance}
+\end{equation}
+
+\begin{proposition}[ISS tracking robustness]
+Assume $K_p\succ0$ and $K_d\succ0$. Then the linear tracking-error system \eqref{eq:tracking_with_disturbance} is input-to-state stable with respect to the input
+\[
+ w(t):=d(t)+\Delta_f(x,\dot x,t).
+\]
+In particular, there exist class-$\mathcal{KL}$ and class-$\mathcal{K}$ functions $\beta$ and $\gamma$ such that
+\[
+ \|(e(t),\dot e(t))\|
+ \le
+ \beta(\|(e(0),\dot e(0))\|,t)
+ +
+ \gamma\Big(\sup_{0\le s\le t}\|w(s)\|\Big).
+\]
+\end{proposition}
+
+\begin{proof}
+Write the error dynamics in first-order form with state
+\[
+ z=
+ \begin{bmatrix}
+ e\\ \dot e
+ \end{bmatrix},
+ \qquad
+ \dot z = A z + B w,
+\]
+where
+\[
+ A=
+ \begin{bmatrix}
+ 0 & I\\
+ -m^{-1}K_p & -m^{-1}K_d
+ \end{bmatrix},
+ \qquad
+ B=
+ \begin{bmatrix}
+ 0\\ I/m
+ \end{bmatrix}.
+\]
+Since $K_p\succ0$ and $K_d\succ0$, Theorem 1 shows that the origin of the corresponding linear time-invariant homogeneous system is asymptotically stable. For linear time-invariant systems, asymptotic stability is equivalent to $A$ being Hurwitz. Therefore, there exists $P\succ0$ satisfying the Lyapunov equation
+\[
+ A^\top P + PA = -Q
+\]
+for any fixed $Q\succ0$. Let $V(z)=z^\top Pz$. Then along solutions,
+\[
+ \dot V = -z^\top Qz + 2z^\top P B w.
+\]
+Using Cauchy--Schwarz and Young's inequality,
+\[
+ \dot V \le -c_1\|z\|^2 + c_2\|w\|^2
+\]
+for suitable constants $c_1,c_2>0$. Standard comparison arguments then yield the stated ISS bound.
+\end{proof}
+
+\section{Convergence to the final equilibrium}
+
+\begin{corollary}[Settling at the destination]
+Assume the hypotheses of Theorem 1 or Theorem 2, and suppose the reference becomes constant after time $T$:
+\[
+ x^\star(t)=x_1^\star,
+ \qquad
+ \dot x^\star(t)=0,
+ \qquad
+ \ddot x^\star(t)=0,
+ \qquad t\ge T.
+\]
+Then the closed-loop system reduces to the regulation problem of Problem 3 about the final equilibrium $x_1^\star$. Consequently,
+\[
+ x(t)\to x_1^\star,
+ \qquad
+ \dot x(t)\to0.
+\]
+\end{corollary}
+
+\begin{proof}
+For $t\ge T$, the feedforward term reduces to $mg\,e_z$, so the tracking controller becomes the regulation controller of Problem 3 around the equilibrium $x_1^\star$. The conclusion follows directly from the regulation results proved there.
+\end{proof}
+
+\section{Remarks}
+
+\begin{remark}[Endpoint nominal inputs]
+At the endpoints, if the reference is stationary then
+\[
+ \ddot x^\star(0)=0,
+ \qquad
+ \ddot x^\star(T)=0,
+\]
+and the nominal input reduces to the hover input from Problem 1. For intermediate times, however, the nominal input generally differs from the hover input because it must supply the inertial term $m\ddot x^\star(t)$.
+\end{remark}
+
+\begin{remark}[PID extension]
+Integral action may be added by defining an auxiliary state
+\[
+ \dot\eta = e
+\]
+and replacing \eqref{eq:fcmd_pd} by
+\[
+ f_{\mathrm{cmd}} = mg\,e_z + m\ddot x^\star(t) - K_p e - K_d\dot e - K_i\eta.
+\]
+The resulting augmented tracking system is the time-varying analogue of Problem 3. If the corresponding augmented closed-loop matrix is Hurwitz (or uniformly exponentially stable in the time-varying setting), then constant bias may be rejected.
+\end{remark}
+
+\begin{remark}[Physical magnetic models]
+The arguments above apply directly to the abstract force model and, locally, to physically grounded magnetic models whenever the input Jacobian
+\[
+ \frac{\partial F_{\mathrm{mag}}}{\partial u}(x^\star(t),u^\star(t))
+\]
+has full row rank along the reference. In the induced-dipole case, the reachable force set need not be convex, so force-feasibility must be checked using the true nonlinear map rather than the control-affine surrogate.
+\end{remark}
+
+\section{Final summary}
+
+The formal solution to Problem 4 is:
+\begin{enumerate}[label=\textbf{(\arabic*)}, leftmargin=1.5em]
+  \item The correct tracking error dynamics are obtained by subtracting the reference trajectory and introducing the feedforward term $m\ddot x^\star(t)$.
+  \item A necessary condition for exact transfer is pointwise force-feasibility:
+  \[
+  mg\,e_z + m\ddot x^\star(t)\in \mathcal{F}(x^\star(t))
+  \quad \forall t\in[0,T].
+  \]
+  \item Under exact force realization, the PD tracking controller reduces the error dynamics to a stable linear second-order system.
+  \item Under bounded actuators, local tracking remains possible if the nominal reference force is realizable in the interior of the reachable-force set and the input Jacobian has full row rank uniformly along the trajectory.
+  \item The tracking error is locally ISS with respect to disturbance and allocation error.
+  \item If the reference becomes constant at the destination, the problem reduces to the regulation problem of Problem 3, implying convergence to the final equilibrium.
+\end{enumerate}
+
+\end{document}
