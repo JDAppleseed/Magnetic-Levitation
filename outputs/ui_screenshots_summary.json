@@ -1,0 +1,90 @@
+[
+  {
+    "name": "ui_fixed_feasible",
+    "image": "/Users/jonathandavanzo/Desktop/Magnetic-Levitation/outputs/ui_fixed_feasible.png",
+    "force_model": "Fixed Dipole",
+    "preset": "demo_calibrated_physical",
+    "exploratory": false,
+    "start": [
+      0.5,
+      0.5,
+      0.55
+    ],
+    "target": [
+      0.5,
+      0.5,
+      0.55
+    ],
+    "target_status": "endpoint_exact_feasible",
+    "path_status": "path_not_required",
+    "start_status": "start_allowed",
+    "execution_mode": "hold",
+    "message": "Fixed Dipole: endpoint hover and transfer are acceptable. Start allowed."
+  },
+  {
+    "name": "ui_fixed_fallback",
+    "image": "/Users/jonathandavanzo/Desktop/Magnetic-Levitation/outputs/ui_fixed_fallback.png",
+    "force_model": "Fixed Dipole",
+    "preset": "demo_calibrated_physical",
+    "exploratory": false,
+    "start": [
+      0.2,
+      0.5,
+      0.5
+    ],
+    "target": [
+      0.8,
+      0.5,
+      0.5
+    ],
+    "target_status": "endpoint_marginal",
+    "path_status": "path_marginal",
+    "start_status": "start_allowed_caution",
+    "execution_mode": "direct_trajectory",
+    "message": "Fixed Dipole: endpoint/path are usable but cautionary. Endpoint residual = 8.22e-12, endpoint margin = 0.02. Path min margin = 0.02, worst residual = 8.35e-11."
+  },
+  {
+    "name": "ui_fixed_blocked",
+    "image": "/Users/jonathandavanzo/Desktop/Magnetic-Levitation/outputs/ui_fixed_blocked.png",
+    "force_model": "Fixed Dipole",
+    "preset": "demo_calibrated_physical",
+    "exploratory": false,
+    "start": [
+      0.5,
+      0.5,
+      0.55
+    ],
+    "target": [
+      0.5,
+      0.5,
+      0.8
+    ],
+    "target_status": "endpoint_blocked",
+    "path_status": "path_blocked",
+    "start_status": "start_blocked",
+    "execution_mode": "blocked",
+    "message": "Fixed Dipole: requested target blocked at endpoint. Residual = 2.45e+00, margin = -1.00. Holding previous feasible target."
+  },
+  {
+    "name": "ui_induced_guarded",
+    "image": "/Users/jonathandavanzo/Desktop/Magnetic-Levitation/outputs/ui_induced_guarded.png",
+    "force_model": "Induced Dipole",
+    "preset": "demo_calibrated_physical",
+    "exploratory": false,
+    "start": [
+      0.2,
+      0.5,
+      0.5
+    ],
+    "target": [
+      0.8,
+      0.5,
+      0.5
+    ],
+    "target_status": "endpoint_exact_feasible",
+    "path_status": "path_blocked",
+    "start_status": "start_allowed_caution",
+    "execution_mode": "guarded_fallback",
+    "message": "Induced Dipole: endpoint hover is acceptable, but the nominal path is blocked at t = 2.00 s. Starting with fallback regulation instead of the nominal path. Guarded runtime safety remains active."
+  }
+]
