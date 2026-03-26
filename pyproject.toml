@@ -11,10 +11,12 @@ requires-python = ">=3.10"
 dependencies = [
   "matplotlib>=3.8",
   "numpy>=1.26",
+  "PyOpenGL>=3.1.7",
   "PySide6>=6.7",
   "pyqtgraph>=0.13",
   "PyYAML>=6.0.1",
   "scipy>=1.12",
+  "vispy>=0.14",
 ]
 
 [project.optional-dependencies]
@@ -31,4 +33,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-

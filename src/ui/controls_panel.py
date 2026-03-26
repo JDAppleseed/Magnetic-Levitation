@@ -133,6 +133,16 @@ class ControlsPanel(QWidget):
         button_layout.addWidget(self.reset_button)
         setup_layout.addWidget(self.buttons_box)
 
+        self.view_box = QGroupBox("View")
+        view_layout = QVBoxLayout(self.view_box)
+        self.show_3d_check = QCheckBox("Show 3D view")
+        self.show_3d_check.setChecked(False)
+        view_hint = QLabel("3D controls: left drag orbit, right drag pan, scroll zoom")
+        view_hint.setWordWrap(True)
+        view_layout.addWidget(self.show_3d_check)
+        view_layout.addWidget(view_hint)
+        setup_layout.addWidget(self.view_box)
+
         self.target_status_box = QGroupBox("Target Assessment")
         target_status_form = QFormLayout(self.target_status_box)
         self.endpoint_status_label = self._value_label()

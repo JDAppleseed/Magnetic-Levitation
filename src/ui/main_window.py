@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QScrollArea, QSplitter, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QScrollArea, QSplitter, QTabWidget, QWidget
 
 from analysis.config import load_yaml, repo_path
 from analysis.runtime import load_sim_defaults
@@ -43,6 +43,7 @@ from sim.state import RigidBodyState
 from ui.controls_panel import ControlsPanel, UIStateSnapshot
 from ui.plots_panel import PlotsPanel
 from ui.projections_panel import ProjectionsPanel
+from ui.view3d_panel import ThreeDViewPanel
 
 
 class MainWindow(QMainWindow):
@@ -63,6 +64,9 @@ class MainWindow(QMainWindow):
 
         self.controls = ControlsPanel()
         self.projections = ProjectionsPanel()
+        self.view_3d_panel = ThreeDViewPanel()
+        self.view_tabs = QTabWidget()
+        self.view_tabs.addTab(self.projections, "2D Projections")
         self.plots = PlotsPanel(history_seconds=float(ui_config["plots"]["history_seconds"]))
         controls_scroll = QScrollArea()
         controls_scroll.setWidget(self.controls)
@@ -71,7 +75,7 @@ class MainWindow(QMainWindow):
         controls_scroll.setMinimumWidth(380)
         controls_scroll.setStyleSheet("QScrollArea { border: none; }")
         center_splitter = QSplitter(Qt.Horizontal)
-        center_splitter.addWidget(self.projections)
+        center_splitter.addWidget(self.view_tabs)
         center_splitter.addWidget(self.plots)
         center_splitter.setStretchFactor(0, 3)
         center_splitter.setStretchFactor(1, 2)
@@ -116,6 +120,7 @@ class MainWindow(QMainWindow):
         self.controls.force_model_combo.currentIndexChanged.connect(self.reset_simulation)
         self.controls.physical_preset_combo.currentIndexChanged.connect(self.reset_simulation)
         self.controls.exploratory_check.toggled.connect(self._handle_exploratory_toggle)
+        self.controls.show_3d_check.toggled.connect(self._toggle_3d_view)
         for spin in (self.controls.ball_radius_spin, self.controls.ball_mass_spin, self.controls.u_min_spin, self.controls.u_max_spin):
             spin.valueChanged.connect(self.reset_simulation)
         for spin in (
@@ -131,6 +136,7 @@ class MainWindow(QMainWindow):
         for spin in self.controls.target_spins:
             spin.valueChanged.connect(self._sync_target_from_controls)
         self.projections.pointSelected.connect(self._handle_projection_pick)
+        self._toggle_3d_view(self.controls.show_3d_check.isChecked())
         self.statusBar().showMessage("Left-click a projection to set the target. Right-click to set the start.")
 
         self.reset_simulation()
@@ -333,6 +339,15 @@ class MainWindow(QMainWindow):
             ball_radius=self.system.ball.radius,
             side_length=self.system.cube.side_length,
         )
+        self.view_3d_panel.set_state(
+            current=self.state.position,
+            target=self.target_position,
+            active_target=self.physical_targets.active_goal(),
+            last_feasible_target=self.physical_targets.last_feasible_target,
+            target_status="idle" if assessment is None else assessment.target_status,
+            ball_radius=self.system.ball.radius,
+            side_length=self.system.cube.side_length,
+        )
         self.controls.update_diagnostics(
             UIStateSnapshot(
                 position=self.state.position,
@@ -433,6 +448,17 @@ class MainWindow(QMainWindow):
 
     def _handle_exploratory_toggle(self) -> None:
         self._refresh_target_plan(clear_abort=True)
+
+    def _toggle_3d_view(self, visible: bool) -> None:
+        index = self.view_tabs.indexOf(self.view_3d_panel)
+        if visible:
+            if index == -1:
+                self.view_tabs.addTab(self.view_3d_panel, "3D View")
+            self.view_tabs.setCurrentWidget(self.view_3d_panel)
+            return
+        if index != -1:
+            self.view_tabs.removeTab(index)
+        self.view_tabs.setCurrentWidget(self.projections)
 
     def _system_from_controls(self) -> SystemParameters:
         cube = CubeGeometry(side_length=self.base_system.cube.side_length, gravity=self.base_system.cube.gravity)

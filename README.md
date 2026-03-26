@@ -74,6 +74,8 @@ Desktop UI:
 python scripts/run_ui.py
 ```
 
+The Setup tab includes a `Show 3D view` toggle. Enable it to expose a `3D View` tab beside the existing 2D projections. The preferred backend is `pyqtgraph.opengl` via `PyOpenGL`; if that backend cannot initialize, the UI falls back to a minimal `VisPy` scene. Controls are `left drag` to orbit, `right drag` to pan, and `scroll` to zoom.
+
 ## Documentation
 
 - [`docs/architecture.md`](./docs/architecture.md)
